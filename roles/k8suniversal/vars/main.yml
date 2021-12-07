@@ -1,0 +1,4 @@
+---
+k8s_version: 1.22.2-00
+k8s_stripped_version: 1.22.2
+containerd_version: 1.5.5-0ubuntu3~*

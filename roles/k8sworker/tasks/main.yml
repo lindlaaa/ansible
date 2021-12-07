@@ -1,0 +1,10 @@
+---
+# tasks file for roles/k8sworker
+- name: Copy the join command to server location
+  copy:
+    src: ../k8scontrolplane/files/join_command.txt
+    dest: /tmp/join-command.sh
+    mode: 0777
+
+- name: Join the node to cluster
+  command: sh /tmp/join-command.sh

@@ -1,0 +1,18 @@
+---
+- hosts: masternode
+  become: yes
+  tags:
+    - newcluster
+  roles:
+    - k8suniversal
+    - k8scontrolplane
+
+  # TODO new controlnode join. controlnode update. new workernode join. workernode update.
+
+- hosts: workers
+  become: yes
+  tags:
+    - workers
+  roles:
+    - k8suniversal
+    - k8sworker

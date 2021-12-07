@@ -1,0 +1,140 @@
+---
+# TODO enable cgroups and memory
+# - name: Enable cgroups
+#   tags:
+#     - init
+#     - k8s
+#     - config
+#   copy:
+#     src: '../files/boot/firmware/cmdline.txt'
+#     dest: '/boot/firmware/cmdline.txt'
+#   notify: restart system
+
+- name: Install containerd.conf file
+  tags:
+    - init
+    - k8s
+    - config
+  copy:
+    src: '../files/etc/modules-load.d/containerd.conf'
+    dest: '/etc/modules-load.d/containerd.conf'
+
+- name: Enable overlay module
+  tags:
+    - init
+    - k8s
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Enable br_netfilter module
+  tags:
+    - init
+    - k8s
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: ensure values are set correctly in kubernetes networking conf
+  tags:
+    - init
+    - k8s
+  sysctl:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+    reload: yes
+  loop:
+    - name: 'net.bridge.bridge-nf-call-iptables'
+      value: '1'
+    - name: 'net.bridge.bridge-nf-call-ip6tables'
+      value: '1'
+    - name: 'net.ipv4.ip_forward '
+      value: '1'
+
+- name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+  tags:
+    - upgrade
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Copy default containerd config file
+  tags:
+    - init
+    - k8s
+  copy:
+    src: '../files/etc/containerd/'
+    dest: '/etc/containerd/'
+
+- name: Install containerd
+  tags:
+    - init
+    - k8s
+    - upgrade
+  apt:
+    name: containerd={{ containerd_version }}
+    state: present
+
+- name: Remove swapfile from /etc/fstab
+  tags:
+    - init
+    - k8s
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  tags:
+    - init
+    - k8s
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Install packages that allow apt to be used over HTTPS
+  tags:
+    - init
+    - k8s
+    - upgrade
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - apt-transport-https
+    - curl
+
+- name: Add an apt signing key for Kubernetes
+  tags:
+    - init
+    - k8s
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Adding apt repository for Kubernetes
+  tags:
+    - init
+    - k8s
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes
+
+- name: Install Kubernetes binaries
+  tags:
+    - init
+    - k8s
+    - upgrade
+  apt: 
+    name:
+      - kubelet={{ k8s_version }}
+      - kubeadm={{ k8s_version }}
+      - kubectl={{ k8s_version }}
+    state: present
+    update_cache: yes

@@ -1,0 +1,7 @@
+---
+- hosts: cluster
+  become: yes
+  tags:
+    - cluster
+  roles:
+    - k8suniversal

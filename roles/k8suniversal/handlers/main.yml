@@ -1,0 +1,5 @@
+---
+# handlers file for roles/k8suniversal
+- name: restart system
+  reboot:
+    reboot_timeout: 3600
