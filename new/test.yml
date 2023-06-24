@@ -1,0 +1,4 @@
+- name: My first play
+  hosts: k3s-control-plane
+  roles:
+  - update
