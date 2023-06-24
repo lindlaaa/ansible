@@ -1,4 +1,7 @@
 - name: My first play
   hosts: k3s-control-plane
+  vars:
+    command: K3S_TOKEN=SECRET sh -s k3s.sh server --server https://k3s-n1.home.arpa:6443
   roles:
   - update
+  - control-node

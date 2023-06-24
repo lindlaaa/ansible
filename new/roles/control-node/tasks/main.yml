@@ -1,0 +1,12 @@
+- name: Run curl
+  become: yes
+  ansible.builtin.command: curl -sfL https://get.k3s.io --output k3s.sh
+  args:
+    creates: k3s.sh
+
+- name: Run sh
+  become: yes
+  ansible.builtin.command:
+  args:
+    cmd: "{{ command }}"
+    creates: /etc/rancher/k3s/k3s.yaml

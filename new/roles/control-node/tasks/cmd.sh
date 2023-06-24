@@ -1,0 +1,1 @@
+curl -sfL https://get.k3s.io | K3S_TOKEN=SECRET sh -s - server --server https://k3s-n1.home.arpa:6443
