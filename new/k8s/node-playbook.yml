@@ -23,7 +23,7 @@
 
   - name: Add apt repository for stable version
     apt_repository:
-      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
       state: present
 
   - name: Install docker and its dependecies
@@ -64,7 +64,7 @@
 
   - name: Adding apt repository for Kubernetes
     apt_repository:
-      repo: deb https://apt.kubernetes.io/ kubernetes-jammy main
+      repo: deb https://apt.kubernetes.io/ kubernetes-{{ ansible_lsb.codename }} main
       state: present
       filename: kubernetes.list
 
