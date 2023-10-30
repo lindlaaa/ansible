@@ -4,7 +4,6 @@
   become: true
   tasks:
   - name: Install packages that allow apt to be used over HTTPS
-    become: yes
     apt:
       name: "{{ packages }}"
       state: present
@@ -58,16 +57,16 @@
     command: swapoff -a
     when: ansible_swaptotal_mb > 0
 
-  - name: Add an apt signing key for Kubernetes
-    apt_key:
-      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      state: present
+  # - name: Add an apt signing key for Kubernetes
+  #   apt_key:
+  #     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+  #     state: present
 
-  - name: Adding apt repository for Kubernetes
-    apt_repository:
-      repo: deb https://apt.kubernetes.io/ kubernetes-jammy main
-      state: present
-      filename: kubernetes.list
+  # - name: Adding apt repository for Kubernetes
+  #   apt_repository:
+  #     repo: deb https://apt.kubernetes.io/ kubernetes-jammy main
+  #     state: present
+  #     filename: kubernetes.list
 
   - name: Install Kubernetes binaries
     apt: 
