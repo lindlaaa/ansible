@@ -4,7 +4,7 @@
   gather_facts: no  
   connection: local  
   vars:  
-    - known_hosts: "~/.ssh/known_hosts"  
+    - known_hosts: "~/known_hosts"  
   tasks:  
     - name: scan and register  
       command: "ssh-keyscan {{ansible_host|default(inventory_hostname)}}"  
