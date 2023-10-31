@@ -49,6 +49,47 @@
       - docker-buildx-plugin
       - docker-compose-plugin
 
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
+  - name: Install k8s pre packages
+    become: true
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - gpg
+      
+  - name: Add k8s key
+    become: true
+    apt_key:
+      url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+      keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+  - name: Add k8s repo
+    become: true
+    apt_repository:
+      repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
+      state: present
+
+  - name: Run the equivalent of "apt-get update" as a separate step
+    become: true
+    apt:
+      update_cache: yes
+
+  - name: Install k8s packages
+    become: true
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - kubelet
+      - kubeadm
+      - kubectl
+
   # - name: Add an apt signing key for Docker
   #   apt_key:
   #     url: https://download.docker.com/linux/ubuntu/gpg
