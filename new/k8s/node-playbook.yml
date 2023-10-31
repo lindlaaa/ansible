@@ -64,7 +64,7 @@
 
   - name: Adding apt repository for Kubernetes
     apt_repository:
-      repo: deb https://apt.kubernetes.io/ kubernetes-{{ ansible_lsb.codename }} main
+      repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
       state: present
       filename: kubernetes.list
 
@@ -83,6 +83,7 @@
     lineinfile:
       path: /etc/default/kubelet
       line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
+      create: yes
 
   - name: Restart kubelet
     service:
@@ -90,11 +91,11 @@
       daemon_reload: yes
       state: restarted
 
-  - name: Copy the join command to server location
-    copy: src=join-command dest=/tmp/join-command.sh mode=0777
+  # - name: Copy the join command to server location
+  #   copy: src=join-command dest=/tmp/join-command.sh mode=0777
 
-  - name: Join the node to cluster
-    command: sh /tmp/join-command.sh
+  # - name: Join the node to cluster
+  #   command: sh /tmp/join-command.sh
 
   handlers:
     - name: docker status
