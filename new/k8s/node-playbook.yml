@@ -122,6 +122,9 @@
       name: kubelet
       daemon_reload: yes
       state: restarted
+    
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: kubeadm init --control-plane-endpoint "192.168.10.1:80" --upload-certs
 
   # # - name: Copy the join command to server location
   # #   copy: src=join-command dest=/tmp/join-command.sh mode=0777
