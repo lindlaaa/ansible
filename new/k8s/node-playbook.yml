@@ -124,6 +124,7 @@
       state: restarted
     
   - name: Initialize the Kubernetes cluster using kubeadm
+    become: true
     command: kubeadm init --control-plane-endpoint "192.168.10.1:80" --upload-certs
 
   # # - name: Copy the join command to server location
