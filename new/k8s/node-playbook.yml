@@ -89,11 +89,13 @@
       - kubectl
 
   - name: Add owner user to docker group
+    become: true
     user:
       name: owner
       group: docker
 
   - name: Remove swapfile from /etc/fstab
+    become: true
     mount:
       name: "{{ item }}"
       fstype: swap
@@ -103,10 +105,12 @@
       - none
 
   - name: Disable swap
+    become: true
     command: swapoff -a
     when: ansible_swaptotal_mb > 0
 
   - name: Configure node ip
+    become: true
     lineinfile:
       path: /etc/default/kubelet
       line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
