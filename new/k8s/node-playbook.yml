@@ -116,11 +116,12 @@
       line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
       create: yes
 
-  # - name: Restart kubelet
-  #   service:
-  #     name: kubelet
-  #     daemon_reload: yes
-  #     state: restarted
+  - name: Restart kubelet
+    become: true
+    service:
+      name: kubelet
+      daemon_reload: yes
+      state: restarted
 
   # # - name: Copy the join command to server location
   # #   copy: src=join-command dest=/tmp/join-command.sh mode=0777
