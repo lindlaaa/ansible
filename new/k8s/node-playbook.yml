@@ -60,18 +60,16 @@
       packages:
       - apt-transport-https
       - gpg
-      
-  - name: Add k8s key
-    become: true
-    apt_key:
-      url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
-      keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-  - name: Add k8s repo
+  - name: Add k8s repo using key from URL
     become: true
-    apt_repository:
-      repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
-      state: present
+    ansible.builtin.deb822_repository:
+      name: k8s-repo
+      types: deb
+      uris: https://pkgs.k8s.io/core:/stable:/v1.28/deb/
+      suites: /
+      architectures: amd64
+      signed_by: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
 
   - name: Run the equivalent of "apt-get update" as a separate step
     become: true
