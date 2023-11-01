@@ -20,6 +20,7 @@
     command: install -m 0755 -d /etc/apt/keyrings
 
   - name: Add repo using key from URL
+    become: true
     ansible.builtin.deb822_repository:
       name: docker-repo
       types: deb
