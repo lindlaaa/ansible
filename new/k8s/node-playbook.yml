@@ -123,31 +123,31 @@
       daemon_reload: yes
       state: restarted
     
-  - name: Initialize the Kubernetes cluster using kubeadm
-    become: true
-    command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name {{ node_name }} --pod-network-cidr=192.168.11.0/24
-    when: isMaster
+  # - name: Initialize the Kubernetes cluster using kubeadm
+  #   become: true
+  #   command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name {{ node_name }} --pod-network-cidr=192.168.11.0/24
+  #   when: isMaster
 
-  - name: Setup kubeconfig for owner user
-    become: true
-    command: "{{ item }}"
-    with_items:
-     - mkdir -p /home/owner/.kube
-     - cp -i /etc/kubernetes/admin.conf /home/owner/.kube/config
-     - chown owner:owner /home/owner/.kube/config
+  # - name: Setup kubeconfig for owner user
+  #   become: true
+  #   command: "{{ item }}"
+  #   with_items:
+  #    - mkdir -p /home/owner/.kube
+  #    - cp -i /etc/kubernetes/admin.conf /home/owner/.kube/config
+  #    - chown owner:owner /home/owner/.kube/config
   
-  - name: Install calico pod network
-    become: false
-    command: kubectl create -f https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/calico.yaml
+  # - name: Install calico pod network
+  #   become: false
+  #   command: kubectl create -f https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/calico.yaml
 
-  - name: Generate join command
-    command: kubeadm token create --print-join-command
-    register: join_command
-    when: isMaster
+  # - name: Generate join command
+  #   command: kubeadm token create --print-join-command
+  #   register: join_command
+  #   when: isMaster
 
-  - name: Copy join command to local file
-    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
-    when: isMaster
+  # - name: Copy join command to local file
+  #   local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+  #   when: isMaster
 
   handlers:
     - name: docker status
