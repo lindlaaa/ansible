@@ -124,10 +124,12 @@
       state: restarted
     
   - name: Initialize the Kubernetes cluster using kubeadm
+    become: true
     command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name {{ node_name }} --pod-network-cidr=192.168.11.0/24
     when: isMaster
 
   - name: Setup kubeconfig for owner user
+    become: true
     command: "{{ item }}"
     with_items:
      - mkdir -p /home/owner/.kube
