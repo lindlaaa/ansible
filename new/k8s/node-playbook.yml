@@ -124,15 +124,60 @@
       state: restarted
     
   - name: Initialize the Kubernetes cluster using kubeadm
-    become: true
-    command: kubeadm init --control-plane-endpoint "192.168.10.1:80" --upload-certs
+    command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name {{ node_name }} --pod-network-cidr=192.168.11.0/24
+    when: isMaster
 
-  # # - name: Copy the join command to server location
-  # #   copy: src=join-command dest=/tmp/join-command.sh mode=0777
+  - name: Setup kubeconfig for owner user
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /home/owner/.kube
+     - cp -i /etc/kubernetes/admin.conf /home/owner/.kube/config
+     - chown owner:owner /home/owner/.kube/config
+  
+  - name: Install calico pod network
+    become: false
+    command: kubectl create -f https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/calico.yaml
 
-  # # - name: Join the node to cluster
-  # #   command: sh /tmp/join-command.sh
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+    when: isMaster
+
+  - name: Copy join command to local file
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+    when: isMaster
 
   handlers:
     - name: docker status
       service: name=docker state=started
+
+# Your Kubernetes control-plane has initialized successfully!
+
+# To start using your cluster, you need to run the following as a regular user:
+
+#   mkdir -p $HOME/.kube
+#   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+#   sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Alternatively, if you are the root user, you can run:
+
+#   export KUBECONFIG=/etc/kubernetes/admin.conf
+
+# You should now deploy a pod network to the cluster.
+# Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+#   https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+# You can now join any number of the control-plane node running the following command on each as root:
+
+#   kubeadm join 192.168.10.1:80 --token 30o7qx.dxsihufby36tm8wy \
+# 	--discovery-token-ca-cert-hash sha256:d24325088f4a28bd2919dff7d32ae248b0f6cc55526326d0784006da4091b4a3 \
+# 	--control-plane --certificate-key fb0d254b2288b6e25e66adff287796e6461a57089cdbb8769595928ca406bbd9
+
+# Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+# As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+# "kubeadm init phase upload-certs --upload-certs" to reload certs afterward.
+
+# Then you can join any number of worker nodes by running the following on each as root:
+
+# kubeadm join 192.168.10.1:80 --token 30o7qx.dxsihufby36tm8wy \
+# 	--discovery-token-ca-cert-hash sha256:d24325088f4a28bd2919dff7d32ae248b0f6cc55526326d0784006da4091b4a3 
